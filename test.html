@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>360 Viewer</title>
+    <script src="aframe.min.js"></script>
+    <script>
+      // Enable device motion for iOS 13+ (they require permission)
+      function requestDeviceMotion() {
+        if (typeof DeviceOrientationEvent !== "undefined" &&
+            typeof DeviceOrientationEvent.requestPermission === "function") {
+          DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+              if (permissionState === "granted") {
+                console.log("Device motion enabled ✅");
+              } else {
+                alert("Please enable motion access in settings!");
+              }
+            })
+            .catch(console.error);
+        }
+      }
+      document.addEventListener("click", requestDeviceMotion, {once: true});
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- 360 Image as Skybox -->
+      <a-sky src="IMG_20250908_145244_001_003_HDR_2025-09-16_09-46-54_screenshot.jpg"></a-sky>
+
+      <!-- Camera with look-controls (gyro-enabled) -->
+      <a-entity id="cameraRig">
+        <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: false;">
+          <a-cursor 
+            fuse="true" 
+            fuseTimeout="1000"
+            geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+            material="color: white; shader: flat">
+          </a-cursor>
+        </a-camera>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
