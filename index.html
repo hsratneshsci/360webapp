@@ -25,7 +25,6 @@
         });
       }
 
-      // iOS motion permission
       function requestDeviceMotion() {
         if (typeof DeviceOrientationEvent !== "undefined" &&
             typeof DeviceOrientationEvent.requestPermission === "function") {
@@ -38,50 +37,68 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        preloadImages(); // start preloading immediately
+        preloadImages();
 
-        // Click on screen (normal mode)
-        document.getElementById("tapOverlay").addEventListener("click", () => {
+        // Normal mode button click
+        document.getElementById("switchBtn").addEventListener("click", () => {
           requestDeviceMotion();
           changeImage();
         });
 
-        // A-Frame click listener for VR gaze/cursor
+        // VR click event
         document.querySelector('#clickPlane').addEventListener('click', () => {
           changeImage();
+        });
+
+        // Show/hide UI based on VR mode
+        const scene = document.querySelector('a-scene');
+        scene.addEventListener('enter-vr', () => {
+          document.getElementById("switchBtn").style.display = "none"; // hide button in VR
+        });
+        scene.addEventListener('exit-vr', () => {
+          document.getElementById("switchBtn").style.display = "block"; // show button in normal mode
         });
       });
     </script>
     <style>
       body, html { margin: 0; padding: 0; height: 100%; }
-      #tapOverlay {
+      #switchBtn {
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: transparent;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        font-size: 16px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
         z-index: 9999;
+      }
+      #switchBtn:hover {
+        background: rgba(0,0,0,0.8);
       }
     </style>
   </head>
   <body>
-    <!-- Fullscreen invisible click area (for normal desktop/mobile) -->
-    <div id="tapOverlay"></div>
+    <!-- Normal mode switch button -->
+    <button id="switchBtn">Next Image</button>
 
     <a-scene vr-mode-ui="enabled: true">
       <a-sky id="sky" src="assets/Street View 360.jpg"></a-sky>
 
-      <!-- Invisible plane that captures clicks in VR -->
+      <!-- Plane only clickable in VR -->
       <a-plane id="clickPlane"
         position="0 0 -3"
         width="10" height="10"
-        color="transparent"
         material="opacity: 0.0"
         visible="true">
       </a-plane>
 
-      <!-- Camera + Cursor -->
+      <!-- Camera & cursor for VR -->
       <a-entity id="cameraRig">
-        <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: false;">
+        <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: true;">
           <a-cursor 
             fuse="true" 
             fuseTimeout="1000"
