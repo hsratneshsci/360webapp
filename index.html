@@ -5,7 +5,21 @@
     <title>360 Viewer</title>
     <script src="aframe.min.js"></script>
     <script>
-      // Enable device motion for iOS 13+ (they require permission)
+      // List of your 360 images
+      const images = [
+        "assets/Street View 360.jpg",
+        "assets/2Street View 360.jpg",
+        "assets/3Street View 360.jpg",
+        "assets/IMG_20250908_145244_001_003_HDR_2025-09-16_09-46-54_screenshot.jpg"
+      ];
+      let currentIndex = 0;
+
+      function changeImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        document.querySelector('#sky').setAttribute('src', images[currentIndex]);
+      }
+
+      // Enable device motion for iOS 13+ (requires user gesture)
       function requestDeviceMotion() {
         if (typeof DeviceOrientationEvent !== "undefined" &&
             typeof DeviceOrientationEvent.requestPermission === "function") {
@@ -20,15 +34,33 @@
             .catch(console.error);
         }
       }
-      document.addEventListener("click", requestDeviceMotion, {once: true});
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("tapOverlay").addEventListener("click", () => {
+          requestDeviceMotion();
+          changeImage();
+        });
+      });
     </script>
+    <style>
+      body, html { margin: 0; padding: 0; height: 100%; }
+      #tapOverlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: transparent;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
-    <a-scene>
-      <!-- 360 Image as Skybox -->
-      <a-sky src="IMG_20250908_145244_001_003_HDR_2025-09-16_09-46-54_screenshot.jpg"></a-sky>
+    <!-- Fullscreen invisible click area -->
+    <div id="tapOverlay"></div>
 
-      <!-- Camera with look-controls (gyro-enabled) -->
+    <a-scene vr-mode-ui="enabled: true">
+      <a-sky id="sky" src="assets/Street View 360.jpg"></a-sky>
+
+      <!-- Camera with gyro-enabled look-controls -->
       <a-entity id="cameraRig">
         <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: false;">
           <a-cursor 
