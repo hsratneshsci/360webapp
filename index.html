@@ -39,85 +39,81 @@
       document.addEventListener("DOMContentLoaded", () => {
         preloadImages();
 
-        // Button clicks
+        // Normal mode button
         document.getElementById("switchBtn").addEventListener("click", () => {
           requestDeviceMotion();
           changeImage();
         });
 
-        document.getElementById("vrBtn").addEventListener("click", () => {
-          document.querySelector('a-scene').enterVR();
-        });
-
-        // VR clickPlane for switching images
-        document.querySelector('#clickPlane').addEventListener('click', () => {
+        // VR Button click
+        document.querySelector('#vrButton').addEventListener('click', () => {
           changeImage();
         });
 
-        // Show/hide UI based on VR mode
+        // Toggle UI depending on VR mode
         const scene = document.querySelector('a-scene');
         scene.addEventListener('enter-vr', () => {
           document.getElementById("switchBtn").style.display = "none";
-          document.getElementById("vrBtn").style.display = "none";
         });
         scene.addEventListener('exit-vr', () => {
           document.getElementById("switchBtn").style.display = "block";
-          document.getElementById("vrBtn").style.display = "block";
         });
       });
     </script>
     <style>
       body, html { margin: 0; padding: 0; height: 100%; }
-
-      /* Bottom Button Styles */
-      .bottom-btn {
+      #switchBtn {
         position: fixed;
         bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         padding: 10px 20px;
         font-size: 16px;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0,0,0,0.6);
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         z-index: 9999;
       }
-
-      #switchBtn {
-        left: 20px;
-      }
-
-      #vrBtn {
-        right: 20px;
-      }
-
-      .bottom-btn:hover {
-        background: rgba(0, 0, 0, 0.8);
+      #switchBtn:hover {
+        background: rgba(0,0,0,0.8);
       }
     </style>
   </head>
   <body>
-    <!-- Bottom Buttons -->
-    <button id="switchBtn" class="bottom-btn">Next Image</button>
-    <button id="vrBtn" class="bottom-btn">Enter VR</button>
+    <!-- Normal mode switch button -->
+    <button id="switchBtn">Next Image</button>
 
-    <a-scene vr-mode-ui="enabled: false">
+    <a-scene vr-mode-ui="enabled: true">
       <a-sky id="sky" src="assets/Street View 360.jpg"></a-sky>
 
-      <!-- Plane clickable in VR for scene change -->
-      <a-plane id="clickPlane"
-        position="0 0 -3"
-        width="10" height="10"
-        material="opacity: 0.0"
-        visible="true">
-      </a-plane>
-
-      <!-- Camera & cursor -->
+      <!-- Camera & VR UI -->
       <a-entity id="cameraRig">
         <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: true;">
+          <!-- VR HUD Button -->
+          <a-entity position="0 -0.6 -2">
+            <a-plane id="vrButton"
+              width="0.8" height="0.3"
+              color="#222"
+              opacity="0.7"
+              class="clickable"
+              material="shader: flat"
+              event-set__mouseenter="scale: 1.1 1.1 1"
+              event-set__mouseleave="scale: 1 1 1">
+              <a-text value="Next Image"
+                align="center"
+                color="#fff"
+                position="0 0 0.01"
+                width="2"></a-text>
+            </a-plane>
+          </a-entity>
+
+          <!-- Cursor -->
           <a-cursor 
             fuse="true" 
-            fuseTimeout="1000"
+            fuseTimeout="1200"
+            rayOrigin="mouse"
             geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
             material="color: white; shader: flat">
           </a-cursor>
