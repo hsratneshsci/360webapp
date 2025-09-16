@@ -5,7 +5,6 @@
     <title>360 Viewer</title>
     <script src="aframe.min.js"></script>
     <script>
-      // List of your 360 images
       const images = [
         "assets/Street View 360.jpg",
         "assets/2Street View 360.jpg",
@@ -19,25 +18,36 @@
         document.querySelector('#sky').setAttribute('src', images[currentIndex]);
       }
 
-      // Enable device motion for iOS 13+ (requires user gesture)
+      function preloadImages() {
+        images.forEach(src => {
+          const img = new Image();
+          img.src = src;
+        });
+      }
+
+      // iOS motion permission
       function requestDeviceMotion() {
         if (typeof DeviceOrientationEvent !== "undefined" &&
             typeof DeviceOrientationEvent.requestPermission === "function") {
           DeviceOrientationEvent.requestPermission()
             .then(permissionState => {
-              if (permissionState === "granted") {
-                console.log("Device motion enabled ✅");
-              } else {
-                alert("Please enable motion access in settings!");
-              }
+              if (permissionState === "granted") console.log("Device motion enabled ✅");
             })
             .catch(console.error);
         }
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        preloadImages(); // start preloading immediately
+
+        // Click on screen (normal mode)
         document.getElementById("tapOverlay").addEventListener("click", () => {
           requestDeviceMotion();
+          changeImage();
+        });
+
+        // A-Frame click listener for VR gaze/cursor
+        document.querySelector('#clickPlane').addEventListener('click', () => {
           changeImage();
         });
       });
@@ -54,13 +64,22 @@
     </style>
   </head>
   <body>
-    <!-- Fullscreen invisible click area -->
+    <!-- Fullscreen invisible click area (for normal desktop/mobile) -->
     <div id="tapOverlay"></div>
 
     <a-scene vr-mode-ui="enabled: true">
       <a-sky id="sky" src="assets/Street View 360.jpg"></a-sky>
 
-      <!-- Camera with gyro-enabled look-controls -->
+      <!-- Invisible plane that captures clicks in VR -->
+      <a-plane id="clickPlane"
+        position="0 0 -3"
+        width="10" height="10"
+        color="transparent"
+        material="opacity: 0.0"
+        visible="true">
+      </a-plane>
+
+      <!-- Camera + Cursor -->
       <a-entity id="cameraRig">
         <a-camera look-controls="magicWindowTrackingEnabled: true; pointerLockEnabled: false;">
           <a-cursor 
